@@ -53,13 +53,13 @@ docker compose up -d
 访问：
 
 ```text
-http://localhost:3000
+http://localhost:3005
 ```
 
 API 基础地址：
 
 ```text
-http://localhost:3000/v1
+http://localhost:3005/v1
 ```
 
 查看日志：
@@ -105,7 +105,7 @@ docker compose -f docker-compose.warp.yml up -d --build
 访问：
 
 ```text
-http://localhost:3000
+http://localhost:3005
 ```
 
 FlareSolverr 相关配置可以在后台设置页的 `FlareSolverr` tab 中查看和测试。

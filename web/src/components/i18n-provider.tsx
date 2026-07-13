@@ -48,6 +48,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    console.log("I18nProvider mounted");
     setMounted(true);
     const detected = detectLocale();
     setLocaleState(detected);

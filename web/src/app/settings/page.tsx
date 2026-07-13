@@ -68,7 +68,7 @@ function SettingsDataController() {
     }
     const timer = window.setInterval(() => {
       void loadBackups(true);
-    }, 3000);
+    }, 3005);
     return () => window.clearInterval(timer);
   }, [backupState?.running, loadBackups]);
 

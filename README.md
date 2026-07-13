@@ -27,8 +27,8 @@ docker compose up -d
 
 启动前请先在 `config.json` 中设置 `auth-key`，也可以在 `docker-compose.yml` 中通过 `CHATGPT2API_AUTH_KEY` 覆盖。
 
-- Web 面板：`http://localhost:3000`
-- API 地址：`http://localhost:3000/v1`
+- Web 面板：`http://localhost:3005`
+- API 地址：`http://localhost:3005/v1`
 - 数据目录：`./data`
 
 ### WARP / FlareSolverr 稳定代理部署
