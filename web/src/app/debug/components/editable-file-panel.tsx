@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { AlertCircle, CheckCircle2, Clock3, FileArchive, FileText, History, ImagePlus, LoaderCircle, Pencil, Play, Plus, RefreshCw, Trash2, XCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -84,13 +85,14 @@ function ResultFile({ href, icon, label }: { href?: string; icon: ReactNode; lab
         <div className="truncate text-xs text-stone-500 dark:text-stone-400">{fileNameOf(href)}</div>
       </div>
       <Button size="sm" asChild>
-        <a href={href} target="_blank" rel="noreferrer">下载</a>
+        <a href={href} target="_blank" rel="noreferrer">{t("download")}</a>
       </Button>
     </div>
   );
 }
 
 export function EditableFilePanel({ title, kind, endpoint, defaultPrompt, imageRequired }: Props) {
+  const t = useTranslations("common");
   const [prompt, setPrompt] = useState(defaultPrompt);
   const [images, setImages] = useState<string[]>([]);
   const [tasks, setTasks] = useState<EditableFileTask[]>([]);
@@ -337,7 +339,7 @@ export function EditableFilePanel({ title, kind, endpoint, defaultPrompt, imageR
               </div>
             );
           }) : (
-            <div className="flex h-full items-center justify-center text-sm text-stone-400 dark:text-stone-500">暂无记录</div>
+            <div className="flex h-full items-center justify-center text-sm text-stone-400 dark:text-stone-500">{t("noData")}</div>
           )}
         </div>
       </aside>
@@ -393,7 +395,7 @@ export function EditableFilePanel({ title, kind, endpoint, defaultPrompt, imageR
             <div className="space-y-5">
               <div className="grid gap-3 sm:grid-cols-[150px_150px_minmax(0,1fr)]">
                 <div className="rounded-md border border-stone-200 bg-stone-50 p-4 dark:border-white/10 dark:bg-white/[0.03]">
-                  <div className="text-xs text-stone-500 dark:text-stone-400">状态</div>
+                  <div className="text-xs text-stone-500 dark:text-stone-400">{t("status")}</div>
                   <div className="mt-2 flex items-center gap-2 text-sm font-semibold text-stone-950 dark:text-stone-50">
                     {selectedTask.status === "success" ? <CheckCircle2 className="size-4 text-emerald-500" /> : selectedTask.status === "error" ? <XCircle className="size-4 text-rose-500" /> : <LoaderCircle className="size-4 animate-spin text-amber-500" />}
                     {statusText(selectedTask.status)}
@@ -420,7 +422,7 @@ export function EditableFilePanel({ title, kind, endpoint, defaultPrompt, imageR
               {selectedTask.error ? <div className="rounded-md border border-rose-200 bg-rose-50/70 px-3 py-2 text-sm text-rose-700 dark:border-rose-900/60 dark:bg-rose-950/20 dark:text-rose-300">{selectedTask.error}</div> : null}
             </div>
           ) : (
-            <div className="flex h-full min-h-80 items-center justify-center text-sm text-stone-400 dark:text-stone-500">暂无任务</div>
+            <div className="flex h-full min-h-80 items-center justify-center text-sm text-stone-400 dark:text-stone-500">{t("noData")}</div>
           )}
         </div>
       </section>
@@ -434,8 +436,8 @@ export function EditableFilePanel({ title, kind, endpoint, defaultPrompt, imageR
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="outline" onClick={() => setDeleteConfirm(null)}>取消</Button>
-          <Button variant="destructive" onClick={confirmDelete}>确认删除</Button>
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>{t("cancel")}</Button>
+            <Button variant="destructive" onClick={confirmDelete}>{t("confirmDelete")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

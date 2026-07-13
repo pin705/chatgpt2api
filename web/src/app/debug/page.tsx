@@ -1,6 +1,7 @@
 "use client";
 
 import { LoaderCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuthGuard } from "@/lib/use-auth-guard";
@@ -11,15 +12,15 @@ import { PsdPanel } from "./components/psd-panel";
 import { SearchPanel } from "./components/search-panel";
 import { SkillPanel } from "./components/skill-panel";
 
-const tabs = [
-  { value: "skills", title: "搜索Skills" },
-  { value: "search", title: "搜索" },
-  { value: "ppt", title: "PPT生成" },
-  { value: "psd", title: "PSD生成" },
-  { value: "chat", title: "对话" },
-];
-
 export default function DebugPage() {
+  const t = useTranslations("debug");
+  const tabs = [
+    { value: "skills", title: t("searchSkills") },
+    { value: "search", title: t("search") },
+    { value: "ppt", title: t("pptGeneration") },
+    { value: "psd", title: t("psdGeneration") },
+    { value: "chat", title: t("chat") },
+  ];
   const { isCheckingAuth, session } = useAuthGuard(["admin"]);
 
   if (isCheckingAuth || !session || session.role !== "admin") {

@@ -1,7 +1,8 @@
 "use client";
 
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Clock3, Download, EyeOff, LoaderCircle, RotateCcw, Sparkles, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -97,6 +98,8 @@ export function ImageResults({
   onDismissErrors,
   formatConversationTime,
 }: ImageResultsProps) {
+  const t = useTranslations("imageResults");
+  const ti = useTranslations("image");
   const imageDimensionsRef = useRef<Record<string, string>>({});
   const [currentTime, setCurrentTime] = useState(Date.now());
   
@@ -130,7 +133,7 @@ export function ImageResults({
               fontFamily: '"Palatino Linotype","Book Antiqua","URW Palladio L","Times New Roman",serif',
             }}
           >
-            Turn ideas into images
+            {ti("turnIdeas")}
           </h1>
           <p
             className="mx-auto mt-3 max-w-[280px] text-sm italic tracking-[0.01em] text-stone-500 sm:mt-4 sm:max-w-none sm:text-[15px]"
@@ -138,7 +141,7 @@ export function ImageResults({
               fontFamily: '"Palatino Linotype","Book Antiqua","URW Palladio L","Times New Roman",serif',
             }}
           >
-            在同一窗口里保留本地历史与任务状态，并从已有结果图继续发起新的无状态编辑。
+            {ti("localHistoryInfo")}
           </p>
         </div>
       </div>
@@ -172,11 +175,11 @@ export function ImageResults({
               <div className="flex justify-end">
                 <div className="max-w-[90%] px-1 py-1 text-[14px] leading-6 text-stone-900 sm:max-w-[82%] sm:text-[15px] sm:leading-7">
                   <div className="mb-1.5 flex flex-wrap justify-end gap-2 text-[11px] text-stone-400 sm:mb-2">
-                    <span>第 {turnIndex + 1} 轮</span>
+                    <span>{t("turnLabel", { count: turnIndex + 1 })}</span>
                     <span>
-                      {turn.mode === "edit" ? "编辑图" : "文生图"}
+                      {turn.mode === "edit" ? t("editImage") : t("textToImage")}
                     </span>
-                    <span>{getTurnStatusLabel(turn.status)}</span>
+                    <span>{getTurnStatusLabel(turn.status, t)}</span>
                     <span>{formatConversationTime(turn.createdAt)}</span>
                   </div>
                   <div className="text-right">{turn.prompt}</div>
@@ -186,13 +189,13 @@ export function ImageResults({
                       onClick={() => void onReuseTurnConfig(selectedConversation.id, turn.id)}
                       className="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2.5 py-1 text-[11px] font-medium text-stone-600 transition hover:bg-stone-200 hover:text-stone-900"
                     >
-                      复用配置
+                      {t("reuseConfig")}
                     </button>
                     <button
                       type="button"
                       onClick={() => onDeletePrompt(selectedConversation.id, turn.id)}
                       className="inline-flex size-6 items-center justify-center rounded-full text-stone-300 transition hover:bg-rose-50 hover:text-rose-500"
-                      aria-label="删除提示词记录"
+                      aria-label={t("deletePromptRecord")}
                     >
                       <Trash2 className="size-3" />
                     </button>
@@ -206,7 +209,7 @@ export function ImageResults({
                 <div className="w-full p-1">
                   {turn.referenceImages.length > 0 ? (
                     <div className="mb-4 flex flex-col items-end">
-                      <div className="mb-3 text-xs font-medium text-stone-500">本轮参考图</div>
+                      <div className="mb-3 text-xs font-medium text-stone-500">{t("thisTurnReference")}</div>
                       <div className="flex flex-wrap justify-end gap-3">
                         {turn.referenceImages.map((image, index) => (
                           <div key={`${turn.id}-${image.name}-${index}`} className="flex flex-col items-end gap-2">
@@ -214,11 +217,11 @@ export function ImageResults({
                               type="button"
                               onClick={() => onOpenLightbox(referenceLightboxImages, index)}
                               className="group relative h-24 w-24 overflow-hidden border border-stone-200/80 bg-stone-100/60 text-left transition hover:border-stone-300"
-                              aria-label={`预览参考图 ${image.name || index + 1}`}
+                              aria-label={image.name || `${t("thisTurnReference")} ${index + 1}`}
                             >
                               <img
                                 src={image.dataUrl}
-                                alt={image.name || `参考图 ${index + 1}`}
+                                alt={image.name || `${t("thisTurnReference")} ${index + 1}`}
                                 className="absolute inset-0 h-full w-full object-cover transition duration-200 group-hover:scale-[1.02]"
                               />
                             </button>
@@ -229,7 +232,7 @@ export function ImageResults({
                               onClick={() => onContinueEdit(selectedConversation.id, image)}
                             >
                               <Sparkles className="size-4" />
-                              加入编辑
+                              {t("addToEdit")}
                             </Button>
                           </div>
                         ))}
@@ -239,9 +242,9 @@ export function ImageResults({
 
                   <div className="mb-3 flex flex-wrap items-center gap-1.5 text-[11px] text-stone-500 sm:mb-4 sm:gap-2 sm:text-xs">
                     <span className="rounded-full bg-stone-100 px-3 py-1">{turn.count} 张</span>
-                    <span className="rounded-full bg-stone-100 px-3 py-1">{getTurnStatusLabel(turn.status)}</span>
+                    <span className="rounded-full bg-stone-100 px-3 py-1">{getTurnStatusLabel(turn.status, t)}</span>
                     {turn.status === "queued" ? (
-                      <span className="rounded-full bg-amber-50 px-3 py-1 text-amber-700">等待当前对话中的前序任务完成</span>
+                      <span className="rounded-full bg-amber-50 px-3 py-1 text-amber-700">{t("waitingForPrevious")}</span>
                     ) : null}
                   </div>
 
@@ -274,7 +277,7 @@ export function ImageResults({
                             />
                             <div className="flex flex-col gap-1 px-0.5 py-1 text-[10px] sm:flex-row sm:items-center sm:justify-between sm:gap-2 sm:px-3 sm:py-3 sm:text-xs">
                               <div className="min-w-0 text-stone-500">
-                                <span>结果 {index + 1}</span>
+                                <span>{t("result", { count: index + 1 })}</span>
                                 {image.durationMs != null ? <span className="text-stone-400 sm:ml-2">{formatDuration(image.durationMs)}</span> : null}
                                 {imageMeta ? <span className="block text-stone-400">{imageMeta}</span> : null}
                               </div>
@@ -284,20 +287,20 @@ export function ImageResults({
                                   size="sm"
                                   className="h-7 w-7 rounded-full border-stone-200 bg-white px-0 text-[10px] text-stone-700 hover:bg-stone-50 sm:h-8 sm:w-fit sm:px-3 sm:text-xs"
                                   onClick={() => onContinueEdit(selectedConversation.id, image)}
-                                  aria-label="加入编辑"
+                                  aria-label={t("addToEdit")}
                                 >
                                   <Sparkles className="size-3 sm:size-4" />
-                                  <span className="hidden sm:inline">加入编辑</span>
+                                  <span className="hidden sm:inline">{t("addToEdit")}</span>
                                 </Button>
                                 <Button
                                   variant="outline"
                                   size="sm"
                                   className="h-7 w-7 rounded-full border-stone-200 bg-white px-0 text-[10px] text-stone-700 hover:bg-stone-50 sm:h-8 sm:w-fit sm:px-3 sm:text-xs"
                                   onClick={() => void downloadStoredImage(image, index)}
-                                  aria-label="下载"
+                                  aria-label={t("download")}
                                 >
                                   <Download className="size-3 sm:size-4" />
-                                  <span className="hidden sm:inline">下载</span>
+                                  <span className="hidden sm:inline">{t("download")}</span>
                                 </Button>
                               </div>
                             </div>
@@ -321,8 +324,8 @@ export function ImageResults({
                               )}
                             >
                             <div className="flex h-full min-h-16 flex-col items-center justify-center gap-1.5 px-2 py-2 text-center text-[11px] leading-4 text-rose-600 sm:gap-3 sm:px-6 sm:py-8 sm:text-sm sm:leading-6">
-                              <p className="font-medium">图片 {index + 1}/{turn.images.length}</p>
-                              <span className="line-clamp-2 sm:line-clamp-none">{image.error || "生成失败"}</span>
+                              <p className="font-medium">{t("result", { count: index + 1 })}/{turn.images.length}</p>
+                              <span className="line-clamp-2 sm:line-clamp-none">{image.error || t("generateFailed")}</span>
                               <div className="flex items-center gap-2">
                                 {isTimeoutError && (
                                   <button
@@ -330,7 +333,7 @@ export function ImageResults({
                                     onClick={() => void onTimeoutRetryContinue(image.taskId!)}
                                     className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-medium text-emerald-600 shadow-sm transition hover:bg-emerald-200 sm:px-3 sm:text-xs"
                                   >
-                                    继续等待
+                                    {t("continueWaiting")}
                                   </button>
                                 )}
                                 <button
@@ -338,14 +341,14 @@ export function ImageResults({
                                   onClick={() => void onRetryImage(selectedConversation.id, turn.id, image.id)}
                                   className="rounded-full bg-white px-2 py-1 text-[10px] font-medium text-rose-600 shadow-sm transition hover:bg-rose-100 sm:px-3 sm:text-xs"
                                 >
-                                  重新生成这一张
+                                  {t("regenerateThis")}
                                 </button>
                               </div>
                             </div>
                             </div>
                             <div className="flex flex-col gap-1 px-0.5 py-1 text-[10px] sm:flex-row sm:items-center sm:justify-between sm:gap-2 sm:px-3 sm:py-3 sm:text-xs">
                               <div className="min-w-0 text-stone-500">
-                                <span>结果 {index + 1}</span>
+                                <span>{t("result", { count: index + 1 })}</span>
                                 {image.durationMs != null ? <span className="text-stone-400 sm:ml-2">{formatDuration(image.durationMs)}</span> : null}
                                 <span className="block text-transparent">-</span>
                               </div>
@@ -355,7 +358,7 @@ export function ImageResults({
                       }
 
                       const imageTaskStatus = image.taskStatus || (turn.status === "queued" ? "queued" : "running");
-                      const imageStatusLabel = imageTaskStatus === "queued" ? "排队中" : getProgressLabel(image.progress);
+                      const imageStatusLabel = imageTaskStatus === "queued" ? t("queuing") : getProgressLabel(image.progress, t);
                       const showElapsed = imageTaskStatus === "running" && image.elapsedSecs != null;
                       const elapsedDisplay = showElapsed
                         ? formatElapsed(
@@ -385,7 +388,7 @@ export function ImageResults({
                               )}
                             </div>
                             <p className="text-[11px] font-medium leading-4 sm:text-sm">
-                              图片 {index + 1}/{turn.images.length}
+                              {t("result", { count: index + 1 })}/{turn.images.length}
                             </p>
                             <p className="text-[10px] leading-4 text-stone-400 sm:text-xs">
                               {imageStatusLabel}
@@ -409,7 +412,7 @@ export function ImageResults({
                         className="ml-3 inline-flex shrink-0 items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-medium text-amber-700 transition hover:bg-amber-200 hover:text-amber-900"
                       >
                         <EyeOff className="size-3" />
-                        忽略错误
+                        {t("ignoreError")}
                       </button>
                     </div>
                   ) : null}
@@ -421,13 +424,13 @@ export function ImageResults({
                       className="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2.5 py-1 font-medium text-stone-500 transition hover:bg-stone-200 hover:text-stone-900"
                     >
                       <RotateCcw className="size-3" />
-                      全部重新生成
+                      {t("regenerateAll")}
                     </button>
                     <button
                       type="button"
                       onClick={() => onDeleteResults(selectedConversation.id, turn.id)}
                       className="inline-flex size-6 items-center justify-center rounded-full text-stone-300 transition hover:bg-rose-50 hover:text-rose-500"
-                      aria-label="删除生成结果"
+                      aria-label={t("deleteResult")}
                     >
                       <Trash2 className="size-3" />
                     </button>
@@ -442,35 +445,36 @@ export function ImageResults({
   );
 }
 
-function getTurnStatusLabel(status: ImageTurnStatus) {
+function getTurnStatusLabel(status: ImageTurnStatus, t: (key: string) => string) {
   if (status === "queued") {
-    return "排队中";
+    return t("queuing");
   }
   if (status === "generating") {
-    return "处理中";
+    return t("processing");
   }
   if (status === "success") {
-    return "已完成";
+    return t("completed");
   }
-  return "失败";
+  return t("failed");
 }
 
 const PROGRESS_LABELS: Record<string, string> = {
-  getting_account: "确认可用账号",
-  uploading: "上传图片",
-  bootstrapping: "预热首页",
-  getting_token: "获取 token",
-  preparing_conversation: "准备会话",
-  starting_generation: "启动生成",
-  generating: "生成中",
-  receiving_image: "接收图片中",
+  getting_account: "progressConfirmAccount",
+  uploading: "progressUploadImage",
+  bootstrapping: "progressWarmup",
+  getting_token: "progressGetToken",
+  preparing_conversation: "progressPrepareSession",
+  starting_generation: "progressStartGenerate",
+  generating: "progressGenerating",
+  receiving_image: "progressReceiving",
 };
 
-function getProgressLabel(progress?: string) {
+function getProgressLabel(progress: string | undefined, t: (key: string) => string) {
   if (!progress) {
-    return "生成中";
+    return t("progressGenerating");
   }
-  return PROGRESS_LABELS[progress] || "生成中";
+  const key = PROGRESS_LABELS[progress];
+  return key ? t(key) : t("progressGenerating");
 }
 
 function formatElapsed(seconds: number): string {

@@ -19,6 +19,7 @@ import {
   Unplug,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from 'next-intl';
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -80,6 +81,7 @@ function normalizeAccounts(items: Sub2APIRemoteAccount[]) {
 }
 
 export function Sub2APIConnections() {
+  const t = useTranslations('settingsSub2API');
   const didLoadRef = useRef(false);
   const pollTimerRef = useRef<number | null>(null);
 
@@ -390,20 +392,20 @@ export function Sub2APIConnections() {
                 <ServerCog className="size-5 text-stone-600" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold tracking-tight">Sub2API 连接管理</h2>
+                <h2 className="text-lg font-semibold tracking-tight">{t('title')}</h2>
                 <p className="text-sm text-stone-500">
                   配置 Sub2API 服务器后，可查询其中的 OpenAI OAuth 账号并批量导入本地号池。
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {servers.length > 0 ? <Badge className="rounded-md px-2.5 py-1">{servers.length} 个连接</Badge> : null}
+              {servers.length > 0 ? <Badge className="rounded-md px-2.5 py-1">{t('connectionCount', { count: servers.length })}</Badge> : null}
               <Button
                 className="h-9 rounded-xl bg-stone-950 px-4 text-white hover:bg-stone-800"
                 onClick={openAddDialog}
               >
                 <Plus className="size-4" />
-                添加连接
+                {t('addConnection')}
               </Button>
             </div>
           </div>
@@ -416,7 +418,7 @@ export function Sub2APIConnections() {
             <div className="flex flex-col items-center justify-center gap-3 rounded-xl bg-stone-50 px-6 py-10 text-center">
               <ServerCog className="size-8 text-stone-300" />
               <div className="space-y-1">
-                <p className="text-sm font-medium text-stone-600">暂无 Sub2API 连接</p>
+                <p className="text-sm font-medium text-stone-600">{t('noConnections')}</p>
                 <p className="text-sm text-stone-400">点击「添加连接」保存你的 Sub2API 信息。</p>
               </div>
             </div>
@@ -445,7 +447,7 @@ export function Sub2APIConnections() {
                           className="rounded-lg p-2 text-stone-400 transition hover:bg-stone-100 hover:text-stone-700"
                           onClick={() => openEditDialog(server)}
                           disabled={isBusy}
-                          title="编辑"
+                          title={t('editConnection')}
                         >
                           <Pencil className="size-4" />
                         </button>
@@ -454,7 +456,7 @@ export function Sub2APIConnections() {
                           className="rounded-lg p-2 text-stone-400 transition hover:bg-rose-50 hover:text-rose-500"
                           onClick={() => void handleDelete(server)}
                           disabled={isBusy}
-                          title="删除"
+                          title={t('delete')}
                         >
                           {deletingId === server.id ? (
                             <LoaderCircle className="size-4 animate-spin" />
@@ -477,13 +479,13 @@ export function Sub2APIConnections() {
                         ) : (
                           <Import className="size-3.5" />
                         )}
-                        同步
+                        {t('sync')}
                       </Button>
                     </div>
 
                     {importJob ? (
                       <div className="space-y-2 rounded-xl bg-stone-50 px-3 py-3">
-                        <div className="text-xs font-medium tracking-[0.16em] text-stone-400 uppercase">导入任务</div>
+                        <div className="text-xs font-medium tracking-[0.16em] text-stone-400 uppercase">{t('importTask')}</div>
                         {(() => {
                           const progress =
                             importJob.total > 0
@@ -493,8 +495,8 @@ export function Sub2APIConnections() {
                             <div className="rounded-lg border border-stone-200 bg-white px-3 py-3">
                               <div className="flex items-center justify-between gap-3">
                                 <div className="min-w-0">
-                                  <div className="text-sm font-medium text-stone-700">
-                                    状态 {importJob.status}，已处理 {importJob.completed}/{importJob.total}
+                                    <div className="text-sm font-medium text-stone-700">
+                                     状态 {importJob.status}，已处理 {importJob.completed}/{importJob.total}
                                   </div>
                                   <div className="truncate text-xs text-stone-400">
                                     任务 {importJob.job_id.slice(0, 8)} · {importJob.created_at}
@@ -537,7 +539,7 @@ export function Sub2APIConnections() {
           )}
 
           <div className="rounded-xl bg-stone-50 px-4 py-3 text-sm leading-6 text-stone-500">
-            <p className="font-medium text-stone-600">使用说明</p>
+            <p className="font-medium text-stone-600">{t('usageInstructions')}</p>
             <ul className="mt-1 list-inside list-disc space-y-0.5">
               <li>输入 Sub2API 地址和管理员账户（或 Admin API Key），保存为一个连接。</li>
               <li>点击某个连接的「同步」会拉取其中 platform=openai 且 type=oauth 的账号列表。</li>
@@ -551,14 +553,14 @@ export function Sub2APIConnections() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent showCloseButton={false} className="rounded-2xl p-6">
           <DialogHeader className="gap-2">
-            <DialogTitle>{editingServer ? "编辑连接" : "添加连接"}</DialogTitle>
+            <DialogTitle>{editingServer ? t('editConnection') : t('addConnection')}</DialogTitle>
             <DialogDescription className="text-sm leading-6">
               {editingServer ? "修改 Sub2API 连接信息" : "添加一个新的 Sub2API 连接"}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-stone-700">名称（可选）</label>
+              <label className="text-sm font-medium text-stone-700">{t('nameOptional')}</label>
               <Input
                 value={formName}
                 onChange={(event) => setFormName(event.target.value)}
@@ -569,7 +571,7 @@ export function Sub2APIConnections() {
             <div className="space-y-2">
               <label className="flex items-center gap-1.5 text-sm font-medium text-stone-700">
                 <Link2 className="size-3.5" />
-                Sub2API 地址
+                {t('sub2apiUrl')}
               </label>
               <Input
                 value={formBaseUrl}
@@ -579,14 +581,14 @@ export function Sub2APIConnections() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-stone-700">认证方式</label>
+              <label className="text-sm font-medium text-stone-700">{t('authMethod')}</label>
               <Select value={authMode} onValueChange={(value) => setAuthMode(value as AuthMode)}>
                 <SelectTrigger className="h-11 rounded-xl border-stone-200 bg-white">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="password">管理员邮箱 + 密码</SelectItem>
-                  <SelectItem value="api_key">Admin API Key</SelectItem>
+                  <SelectItem value="password">{t('authEmailPassword')}</SelectItem>
+                  <SelectItem value="api_key">{t('authApiKey')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -595,7 +597,7 @@ export function Sub2APIConnections() {
                 <div className="space-y-2">
                   <label className="flex items-center gap-1.5 text-sm font-medium text-stone-700">
                     <Mail className="size-3.5" />
-                    管理员邮箱
+                    {t('adminEmail')}
                   </label>
                   <Input
                     value={formEmail}
@@ -607,7 +609,7 @@ export function Sub2APIConnections() {
                 <div className="space-y-2">
                   <label className="flex items-center gap-1.5 text-sm font-medium text-stone-700">
                     <Unplug className="size-3.5" />
-                    管理员密码
+                    {t('adminPassword')}
                   </label>
                   <div className="relative">
                     <Input
@@ -631,7 +633,7 @@ export function Sub2APIConnections() {
               <div className="space-y-2">
                 <label className="flex items-center gap-1.5 text-sm font-medium text-stone-700">
                   <Unplug className="size-3.5" />
-                  Admin API Key
+                  {t('authApiKey')}
                 </label>
                 <div className="relative">
                   <Input
@@ -654,7 +656,7 @@ export function Sub2APIConnections() {
             <div className="space-y-2">
               <label className="flex items-center gap-1.5 text-sm font-medium text-stone-700">
                 <Layers className="size-3.5" />
-                分组（可选）
+                {t('groupOptional')}
               </label>
               {remoteGroups && remoteGroups.length > 0 ? (
                 <Select value={formGroupId || "__all__"} onValueChange={(value) => setFormGroupId(value === "__all__" ? "" : value)}>
@@ -662,8 +664,8 @@ export function Sub2APIConnections() {
                     <SelectValue placeholder="选择分组" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="__all__">全部分组（不限制）</SelectItem>
-                    <SelectItem value="ungrouped">未分组</SelectItem>
+                    <SelectItem value="__all__">{t('allGroups')}</SelectItem>
+                    <SelectItem value="ungrouped">{t('ungrouped')}</SelectItem>
                     {remoteGroups.map((group) => (
                       <SelectItem key={group.id} value={group.id}>
                         {group.name || `Group ${group.id}`}
@@ -714,7 +716,7 @@ export function Sub2APIConnections() {
               onClick={() => setDialogOpen(false)}
               disabled={isSaving}
             >
-              取消
+              {t('cancel')}
             </Button>
             <Button
               className="h-10 rounded-xl bg-stone-950 px-5 text-white hover:bg-stone-800"
@@ -722,7 +724,7 @@ export function Sub2APIConnections() {
               disabled={isSaving}
             >
               {isSaving ? <LoaderCircle className="size-4 animate-spin" /> : <Save className="size-4" />}
-              {editingServer ? "保存修改" : "添加"}
+              {editingServer ? t('saveChanges') : t('add')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -731,7 +733,7 @@ export function Sub2APIConnections() {
       <Dialog open={browserOpen} onOpenChange={setBrowserOpen}>
         <DialogContent showCloseButton={false} className="max-h-[90vh] max-w-5xl rounded-2xl p-6">
           <DialogHeader className="gap-2">
-            <DialogTitle>选择要导入的账号</DialogTitle>
+            <DialogTitle>{t('selectAccounts')}</DialogTitle>
             <DialogDescription className="text-sm leading-6">
               {browserServer ? `来自 ${browserServer.name || browserServer.base_url}` : "Sub2API 上的 OpenAI OAuth 账号"}
             </DialogDescription>

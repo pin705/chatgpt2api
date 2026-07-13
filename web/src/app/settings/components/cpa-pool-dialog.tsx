@@ -1,6 +1,7 @@
 "use client";
 
 import { Eye, EyeOff, Link2, LoaderCircle, Save, Unplug } from "lucide-react";
+import { useTranslations } from 'next-intl';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { useSettingsStore } from "../store";
 
 export function CPAPoolDialog() {
+  const t = useTranslations('settingsCPA');
   const dialogOpen = useSettingsStore((state) => state.dialogOpen);
   const editingPool = useSettingsStore((state) => state.editingPool);
   const formName = useSettingsStore((state) => state.formName);
@@ -34,7 +36,7 @@ export function CPAPoolDialog() {
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogContent showCloseButton={false} className="rounded-2xl p-6">
         <DialogHeader className="gap-2">
-          <DialogTitle>{editingPool ? "编辑连接" : "添加连接"}</DialogTitle>
+          <DialogTitle>{editingPool ? "编辑连接" : t('addConnection')}</DialogTitle>
           <DialogDescription className="text-sm leading-6">
             {editingPool ? "修改 CPA 连接信息" : "添加一个新的 CLIProxyAPI 连接"}
           </DialogDescription>

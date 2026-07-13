@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Link2, LoaderCircle, PlugZap, Save } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from 'next-intl';
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import { testProxy, type ProxyTestResult } from "@/lib/api";
 import { useSettingsStore } from "../store";
 
 export function ProxySettingsCard() {
+  const t = useTranslations('settingsProxy');
   const [isTesting, setIsTesting] = useState(false);
   const [testResult, setTestResult] = useState<ProxyTestResult | null>(null);
   const config = useSettingsStore((state) => state.config);
@@ -55,7 +57,7 @@ export function ProxySettingsCard() {
               <Link2 className="size-5 text-stone-600" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold tracking-tight">全局代理</h2>
+              <h2 className="text-lg font-semibold tracking-tight">{t('title')}</h2>
               <p className="text-sm text-stone-500">为系统中的出站请求配置统一代理，保存后会立即生效。</p>
             </div>
           </div>
@@ -71,7 +73,7 @@ export function ProxySettingsCard() {
         ) : (
           <>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-stone-700">代理地址</label>
+              <label className="text-sm font-medium text-stone-700">{t('proxyUrl')}</label>
               <Input
                 value={proxy}
                 onChange={(event) => {
@@ -108,15 +110,15 @@ export function ProxySettingsCard() {
                 disabled={isTesting || isLoadingConfig}
               >
                 {isTesting ? <LoaderCircle className="size-4 animate-spin" /> : <PlugZap className="size-4" />}
-                测试代理
+                {t('testProxy')}
               </Button>
               <Button
                 className="h-10 rounded-xl bg-stone-950 px-5 text-white hover:bg-stone-800"
                 onClick={() => void saveConfig()}
                 disabled={isSavingConfig}
               >
-                {isSavingConfig ? <LoaderCircle className="size-4 animate-spin" /> : <Save className="size-4" />}
-                保存配置
+            {isSavingConfig ? <LoaderCircle className="size-4 animate-spin" /> : <Save className="size-4" />}
+            保存配置
               </Button>
             </div>
           </>

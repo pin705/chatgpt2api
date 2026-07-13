@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ChevronDown, FileArchive, FileText, KeyRound, ListChecks, type LucideIcon } from "lucide-react";
+import { useTranslations } from 'next-intl';
 
 import { Card, CardContent } from "@/components/ui/card";
 import webConfig from "@/constants/common-env";
@@ -243,6 +244,7 @@ function ParamTable({ rows }: { rows: ParamRow[] }) {
 }
 
 export function ApiDocsCard() {
+  const t = useTranslations('settingsAPIDocs');
   const [authKey, setAuthKey] = useState("");
   const serviceBaseUrl = webConfig.apiUrl.replace(/\/$/, "") || (typeof window !== "undefined" ? window.location.origin : "");
   const openAIBaseUrl = `${serviceBaseUrl}/v1`;
@@ -264,34 +266,34 @@ export function ApiDocsCard() {
         <div>
           <div className="flex items-center gap-2 text-base font-semibold text-stone-900">
             <KeyRound className="size-5 text-stone-500" />
-            接口接入说明
+            {t('title')}
           </div>
           <p className="mt-1 text-xs leading-6 text-stone-500">
-            第三方应用按 OpenAI 兼容接口接入；文件任务接口也使用同一套鉴权方式。
+             {t('description')}
           </p>
         </div>
 
         <div className="grid gap-3 md:grid-cols-2">
           <div className="space-y-1 rounded-xl border border-stone-200 bg-white px-3 py-2">
-            <div className="text-xs text-stone-500">服务地址</div>
+            <div className="text-xs text-stone-500">{t('serviceAddress')}</div>
             <div className="break-all font-mono text-xs text-stone-800">{serviceBaseUrl}</div>
           </div>
           <div className="space-y-1 rounded-xl border border-stone-200 bg-white px-3 py-2">
-            <div className="text-xs text-stone-500">Base URL（OpenAI）</div>
+            <div className="text-xs text-stone-500">{t('baseUrl')}</div>
             <div className="break-all font-mono text-xs text-stone-800">{openAIBaseUrl}</div>
           </div>
           <div className="space-y-1 rounded-xl border border-stone-200 bg-white px-3 py-2">
-            <div className="text-xs text-stone-500">API Key</div>
+            <div className="text-xs text-stone-500">{t('apiKey')}</div>
             <div className="break-all font-mono text-xs text-stone-800">{displayKey}</div>
           </div>
           <div className="space-y-1 rounded-xl border border-stone-200 bg-white px-3 py-2">
-            <div className="text-xs text-stone-500">请求头</div>
+            <div className="text-xs text-stone-500">{t('headers')}</div>
             <div className="break-all font-mono text-xs text-stone-800">Authorization: Bearer {displayKey}</div>
           </div>
         </div>
 
         <div className="space-y-2">
-          <div className="text-xs font-medium text-stone-600">常用模型，也可请求 /v1/models 获取</div>
+          <div className="text-xs font-medium text-stone-600">{t('commonModels')}</div>
           <div className="flex flex-wrap gap-2">
             {usableModels.map((model) => (
               <span key={model} className="rounded-md border border-stone-200 bg-white px-2 py-1 font-mono text-xs text-stone-700">{model}</span>
@@ -319,15 +321,15 @@ export function ApiDocsCard() {
 
                 <div className="mt-4 grid gap-4 lg:grid-cols-2">
                   <div className="space-y-2">
-                    <h3 className="text-xs font-semibold text-stone-700">输入参数</h3>
+                    <h3 className="text-xs font-semibold text-stone-700">{t('inputParams')}</h3>
                     <ParamTable rows={item.input} />
                   </div>
                   <div className="space-y-2">
-                    <h3 className="text-xs font-semibold text-stone-700">输出参数</h3>
+                    <h3 className="text-xs font-semibold text-stone-700">{t('outputParams')}</h3>
                     <ParamTable rows={item.output} />
                   </div>
                   <div className="space-y-2 lg:col-span-2">
-                    <h3 className="text-xs font-semibold text-stone-700">调用示例</h3>
+                    <h3 className="text-xs font-semibold text-stone-700">{t('callExample')}</h3>
                     <pre className="overflow-auto whitespace-pre-wrap break-all rounded-xl bg-stone-950 px-3 py-3 text-xs leading-5 text-stone-100">{item.example(openAIBaseUrl, displayKey)}</pre>
                   </div>
                 </div>

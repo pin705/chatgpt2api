@@ -8,6 +8,7 @@ import {
   Wifi,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from 'next-intl';
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,6 +22,7 @@ import {
 } from "@/lib/api";
 
 export function ProxySettingsCard() {
+  const t = useTranslations('settingsProxy');
   const didLoadRef = useRef(false);
   const [settings, setSettings] = useState<ProxySettings>({ enabled: false, url: "" });
   const [formUrl, setFormUrl] = useState("");
@@ -110,7 +112,7 @@ export function ProxySettingsCard() {
               <Wifi className="size-5 text-stone-600" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold tracking-tight">上游代理配置</h2>
+              <h2 className="text-lg font-semibold tracking-tight">{t('title')}</h2>
               <p className="text-sm text-stone-500">
                 为 chatgpt.com 的请求配置出网代理，适合国内服务器部署；Sub2API / CPA 请求不受影响。
               </p>
@@ -142,7 +144,7 @@ export function ProxySettingsCard() {
             <div className="space-y-2">
               <label className="flex items-center gap-1.5 text-sm font-medium text-stone-700">
                 <PlugZap className="size-3.5" />
-                代理地址
+                {t('proxyUrl')}
               </label>
               <Input
                 value={formUrl}

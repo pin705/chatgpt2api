@@ -3,6 +3,7 @@
 import { CloudUpload, Download, Eye, LoaderCircle, Play, RefreshCcw, Shield, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from 'next-intl';
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -63,18 +64,19 @@ function getFilenameFromContentDisposition(value: string | null) {
   return plainMatch?.[1] || "";
 }
 
-const includeLabels: Array<{ key: keyof BackupInclude; label: string }> = [
-  { key: "config", label: "系统配置" },
-  { key: "cpa", label: "CPA 配置" },
-  { key: "sub2api", label: "Sub2API 配置" },
-  { key: "logs", label: "调度与调用日志" },
-  { key: "image_tasks", label: "图片任务记录" },
-  { key: "accounts_snapshot", label: "账号快照" },
-  { key: "auth_keys_snapshot", label: "用户密钥快照" },
-  { key: "images", label: "图片文件目录" },
+const includeLabels: Array<{ key: keyof BackupInclude; tKey: string }> = [
+  { key: "config", tKey: "includeConfig" },
+  { key: "cpa", tKey: "includeCPA" },
+  { key: "sub2api", tKey: "includeSub2API" },
+  { key: "logs", tKey: "includeLogs" },
+  { key: "image_tasks", tKey: "includeImageTasks" },
+  { key: "accounts_snapshot", tKey: "includeAccountsSnapshot" },
+  { key: "auth_keys_snapshot", tKey: "includeAuthKeysSnapshot" },
+  { key: "images", tKey: "includeImages" },
 ];
 
 export function BackupSettingsCard() {
+  const t = useTranslations('settingsBackup');
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detail, setDetail] = useState<BackupDetail | null>(null);
@@ -118,7 +120,7 @@ export function BackupSettingsCard() {
       setDetail(data.item);
     } catch (error) {
       setDetail(null);
-      toast.error(error instanceof Error ? error.message : "读取备份详情失败");
+      toast.error(error instanceof Error ? error.message : t('loadDetailFailed'));
     } finally {
       setDetailLoading(false);
     }
@@ -128,7 +130,7 @@ export function BackupSettingsCard() {
     try {
       const authKey = await getStoredAuthKey();
       if (!authKey) {
-        toast.error("当前登录态已失效，请重新登录后再下载");
+        toast.error(t('sessionExpired'));
         return;
       }
       const response = await fetch(`${webConfig.apiUrl.replace(/\/$/, "")}${getBackupDownloadUrl(key)}`, {
@@ -137,12 +139,12 @@ export function BackupSettingsCard() {
         },
       });
       if (!response.ok) {
-        let message = "下载备份失败";
+        let message = t('downloadFailed');
         try {
           const data = await response.json() as { detail?: { error?: string }; error?: string; message?: string };
           message = data.detail?.error || data.error || data.message || message;
         } catch {
-          message = response.status === 401 ? "登录已失效，请重新登录后再试" : message;
+          message = response.status === 401 ? t('loginExpired') : message;
         }
         throw new Error(message);
       }
@@ -156,9 +158,9 @@ export function BackupSettingsCard() {
       anchor.click();
       anchor.remove();
       window.URL.revokeObjectURL(url);
-      toast.success("备份下载已开始");
+      toast.success(t('downloadStarted'));
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "下载备份失败");
+      toast.error(error instanceof Error ? error.message : t('downloadFailed'));
     }
   };
 
@@ -172,13 +174,13 @@ export function BackupSettingsCard() {
                 <CloudUpload className="size-5 text-stone-600" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold tracking-tight">R2 备份管理</h2>
+                <h2 className="text-lg font-semibold tracking-tight">{t('title')}</h2>
                 <p className="text-sm text-stone-500">将关键数据定时备份到 Cloudflare R2，支持可选加密、轮替、手动执行与历史清理。</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Badge variant={backupState?.running ? "warning" : backupState?.last_status === "success" ? "success" : "secondary"} className="rounded-md">
-                {backupState?.running ? "备份中" : backupState?.last_status === "success" ? "最近成功" : backupState?.last_status === "error" ? "最近失败" : "未执行"}
+                {backupState?.running ? t('backingUp') : backupState?.last_status === "success" ? t('recentSuccess') : backupState?.last_status === "error" ? t('recentFailed') : t('notExecuted')}
               </Badge>
             </div>
           </div>
@@ -193,52 +195,52 @@ export function BackupSettingsCard() {
                 checked={Boolean(backup.enabled)}
                 onCheckedChange={(checked) => setBackupField("enabled", Boolean(checked))}
               />
-              启用定时备份
+              {t('enableScheduledBackup')}
             </label>
             <label className="flex items-center gap-3 rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-700">
               <Checkbox
                 checked={Boolean(backup.encrypt)}
                 onCheckedChange={(checked) => setBackupField("encrypt", Boolean(checked))}
               />
-              启用备份加密
+              {t('enableEncryption')}
             </label>
 
           <div className="space-y-2">
-            <label className="text-sm text-stone-700">Cloudflare Account ID</label>
+            <label className="text-sm text-stone-700">{t('accountId')}</label>
             <Input value={String(backup.account_id || "")} onChange={(event) => setBackupField("account_id", event.target.value)} className="h-10 rounded-xl border-stone-200 bg-white" />
           </div>
           <div className="space-y-2">
-            <label className="text-sm text-stone-700">Bucket 名称</label>
+            <label className="text-sm text-stone-700">{t('bucketName')}</label>
             <Input value={String(backup.bucket || "")} onChange={(event) => setBackupField("bucket", event.target.value)} className="h-10 rounded-xl border-stone-200 bg-white" />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm text-stone-700">Access Key ID</label>
+            <label className="text-sm text-stone-700">{t('accessKeyId')}</label>
             <Input value={String(backup.access_key_id || "")} onChange={(event) => setBackupField("access_key_id", event.target.value)} className="h-10 rounded-xl border-stone-200 bg-white" />
           </div>
           <div className="space-y-2">
-            <label className="text-sm text-stone-700">Secret Access Key</label>
+            <label className="text-sm text-stone-700">{t('secretAccessKey')}</label>
             <Input type="password" value={String(backup.secret_access_key || "")} onChange={(event) => setBackupField("secret_access_key", event.target.value)} className="h-10 rounded-xl border-stone-200 bg-white" />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm text-stone-700">备份前缀</label>
+            <label className="text-sm text-stone-700">{t('backupPrefix')}</label>
             <Input value={String(backup.prefix || "")} onChange={(event) => setBackupField("prefix", event.target.value)} placeholder="backups" className="h-10 rounded-xl border-stone-200 bg-white" />
             <p className="text-xs text-stone-500">R2 内对象前缀，例如 `backups/prod`。</p>
           </div>
           <div className="space-y-2">
-            <label className="text-sm text-stone-700">定时备份间隔</label>
+            <label className="text-sm text-stone-700">{t('backupInterval')}</label>
             <Input value={String(backup.interval_minutes || "")} onChange={(event) => setBackupField("interval_minutes", event.target.value)} placeholder="360" className="h-10 rounded-xl border-stone-200 bg-white" />
             <p className="text-xs text-stone-500">单位分钟，服务启动后会按此间隔自动轮询执行。</p>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm text-stone-700">保留备份数量</label>
+            <label className="text-sm text-stone-700">{t('keepCount')}</label>
             <Input value={String(backup.rotation_keep || "")} onChange={(event) => setBackupField("rotation_keep", event.target.value)} placeholder="10" className="h-10 rounded-xl border-stone-200 bg-white" />
             <p className="text-xs text-stone-500">成功上传后自动删除更旧的备份。填 `0` 表示不自动轮替。</p>
           </div>
           <div className="space-y-2">
-            <label className="text-sm text-stone-700">加密口令</label>
+            <label className="text-sm text-stone-700">{t('encryptionPassphrase')}</label>
             <Input type="password" value={String(backup.passphrase || "")} onChange={(event) => setBackupField("passphrase", event.target.value)} placeholder={backup.encrypt ? "启用加密后必填" : "留空"} className="h-10 rounded-xl border-stone-200 bg-white" />
             <p className="text-xs text-stone-500">仅在启用加密时使用。请妥善保管，否则无法解密备份内容。</p>
           </div>
@@ -246,7 +248,7 @@ export function BackupSettingsCard() {
 
           <div className="space-y-3 rounded-xl border border-stone-200 bg-white px-4 py-4">
           <div>
-            <div className="text-sm font-medium text-stone-800">备份内容</div>
+            <div className="text-sm font-medium text-stone-800">{t('backupContent')}</div>
             <p className="mt-1 text-xs text-stone-500">按组件勾选需要进入备份包的数据。</p>
           </div>
           <div className="grid gap-3 md:grid-cols-3">
@@ -256,7 +258,7 @@ export function BackupSettingsCard() {
                   checked={Boolean(backup.include[item.key])}
                   onCheckedChange={(checked) => setBackupInclude(item.key, Boolean(checked))}
                 />
-                {item.label}
+                {t(item.tKey)}
               </label>
             ))}
           </div>
@@ -286,26 +288,26 @@ export function BackupSettingsCard() {
           <div className="flex flex-wrap justify-end gap-2">
           <Button type="button" variant="outline" className="h-9 rounded-xl border-stone-200 bg-white px-4 text-stone-700" onClick={() => void testBackup()} disabled={isTestingBackup}>
             {isTestingBackup ? <LoaderCircle className="size-4 animate-spin" /> : <Shield className="size-4" />}
-            测试连接
+            {t('testConnection')}
           </Button>
           <Button type="button" variant="outline" className="h-9 rounded-xl border-stone-200 bg-white px-4 text-stone-700" onClick={() => void loadBackups()} disabled={isLoadingBackups}>
             {isLoadingBackups ? <LoaderCircle className="size-4 animate-spin" /> : <RefreshCcw className="size-4" />}
-            刷新列表
+            {t('refreshList')}
           </Button>
           <Button type="button" variant="outline" className="h-9 rounded-xl border-stone-200 bg-white px-4 text-stone-700" onClick={() => void runBackup()} disabled={isRunningBackup || Boolean(backupState?.running)}>
             {isRunningBackup || backupState?.running ? <LoaderCircle className="size-4 animate-spin" /> : <Play className="size-4" />}
-            立即备份
+            {t('backupNow')}
           </Button>
           <Button className="h-9 rounded-xl bg-stone-950 px-4 text-white hover:bg-stone-800" onClick={() => void saveConfig()} disabled={isSavingConfig}>
             {isSavingConfig ? <LoaderCircle className="size-4 animate-spin" /> : <CloudUpload className="size-4" />}
-            保存配置
+            {t('saveConfig')}
           </Button>
           </div>
 
           <div className="space-y-3">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h3 className="text-sm font-medium text-stone-800">历史备份</h3>
+              <h3 className="text-sm font-medium text-stone-800">{t('backupHistory')}</h3>
               <p className="text-xs text-stone-500">支持查看对象信息并直接删除远端备份。</p>
             </div>
           </div>
@@ -316,7 +318,7 @@ export function BackupSettingsCard() {
             </div>
           ) : backups.length === 0 ? (
             <div className="rounded-xl bg-stone-50 px-6 py-10 text-center text-sm text-stone-500">
-              暂无远端备份记录。保存配置并执行一次手动备份后会出现在这里。
+              {t('noBackups')}
             </div>
           ) : (
             <div className="space-y-3">
@@ -327,7 +329,7 @@ export function BackupSettingsCard() {
                     <div className="min-w-0 space-y-2">
                       <div className="flex flex-wrap items-center gap-2">
                         <div className="break-all text-sm font-medium text-stone-800">{item.name}</div>
-                        {item.encrypted ? <Badge variant="secondary" className="rounded-md">已加密</Badge> : null}
+                        {item.encrypted ? <Badge variant="secondary" className="rounded-md">{t('encrypted')}</Badge> : null}
                       </div>
                       <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-stone-500">
                         <span>大小 {formatBytes(item.size)}</span>
@@ -344,11 +346,11 @@ export function BackupSettingsCard() {
                         onClick={() => void handleDownload(item.key, item.name)}
                       >
                         <Download className="size-4" />
-                        下载
+                        {t('download')}
                       </Button>
                       <Button type="button" variant="outline" className="h-9 rounded-xl border-stone-200 bg-white px-4 text-stone-700" onClick={() => void handleOpenDetail(item.key)}>
                         <Eye className="size-4" />
-                        查看详情
+                        {t('viewDetail')}
                       </Button>
                       <Button
                         type="button"
@@ -358,7 +360,7 @@ export function BackupSettingsCard() {
                         disabled={isDeleting}
                       >
                         {isDeleting ? <LoaderCircle className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
-                        删除
+                        {t('delete')}
                       </Button>
                     </div>
                   </div>
@@ -373,7 +375,7 @@ export function BackupSettingsCard() {
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
         <DialogContent className="flex max-h-[85vh] max-w-3xl flex-col overflow-hidden rounded-2xl border-white/80 bg-white">
           <DialogHeader className="shrink-0 border-b border-stone-200 pb-3">
-            <DialogTitle>备份详情</DialogTitle>
+            <DialogTitle>{t('backupDetail')}</DialogTitle>
           </DialogHeader>
           <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
             {detailLoading ? (
@@ -382,7 +384,7 @@ export function BackupSettingsCard() {
               </div>
             ) : !detail ? (
               <div className="rounded-xl bg-stone-50 px-6 py-10 text-center text-sm text-stone-500">
-                暂时无法读取备份详情；如果这是加密备份，请确认当前已填写正确的加密口令并先保存配置。
+                {t('loadingDetails')}
               </div>
             ) : (
               <>

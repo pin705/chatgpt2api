@@ -2,6 +2,7 @@
 
 import { Import, LoaderCircle, Search } from "lucide-react";
 import { useMemo } from "react";
+import { useTranslations } from 'next-intl';
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -19,6 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { PAGE_SIZE_OPTIONS, useSettingsStore } from "../store";
 
 export function ImportBrowserDialog() {
+  const t = useTranslations('settingsCPA');
   const browserOpen = useSettingsStore((state) => state.browserOpen);
   const browserPool = useSettingsStore((state) => state.browserPool);
   const remoteFiles = useSettingsStore((state) => state.remoteFiles);

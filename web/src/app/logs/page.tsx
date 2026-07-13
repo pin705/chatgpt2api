@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, ImageIcon, LoaderCircle, RefreshCw, Search, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { DateRangeFilter } from "@/components/date-range-filter";
@@ -22,11 +23,6 @@ const LogType = {
   Account: "account",
 } as const;
 
-const typeLabels: Record<string, string> = {
-  [LogType.Call]: "调用日志",
-  [LogType.Account]: "账号管理日志",
-};
-
 function getDetailText(item: SystemLog, key: string) {
   const value = item.detail?.[key];
   return typeof value === "string" || typeof value === "number" ? String(value) : "-";
@@ -42,14 +38,8 @@ function getUrls(item: SystemLog | null) {
   return Array.isArray(urls) ? urls.filter((url): url is string => typeof url === "string") : [];
 }
 
-function getStatus(item: SystemLog) {
-  const status = item.detail?.status;
-  if (status === "success") return "成功";
-  if (status === "failed") return "失败";
-  return "-";
-}
-
 function LogsContent() {
+  const t = useTranslations("logs");
   const [items, setItems] = useState<SystemLog[]>([]);
   const [type, setType] = useState<string>(LogType.Call);
   const [startDate, setStartDate] = useState("");
@@ -137,24 +127,24 @@ function LogsContent() {
     <section className="space-y-5">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="space-y-1">
-          <div className="text-xs font-semibold tracking-[0.18em] text-stone-500 uppercase">Logs</div>
-          <h1 className="text-2xl font-semibold tracking-tight">日志管理</h1>
+          <div className="text-xs font-semibold tracking-[0.18em] text-stone-500 uppercase">{t("subtitle")}</div>
+          <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
         </div>
         <div className="flex flex-wrap gap-2">
           <Select value={type} onValueChange={setType}>
             <SelectTrigger className="h-10 w-[150px] rounded-xl border-stone-200 bg-white"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value={LogType.Call}>调用日志</SelectItem>
-              <SelectItem value={LogType.Account}>账号管理日志</SelectItem>
+              <SelectItem value={LogType.Call}>{t("callLogs")}</SelectItem>
+              <SelectItem value={LogType.Account}>{t("accountLogs")}</SelectItem>
             </SelectContent>
           </Select>
           <DateRangeFilter startDate={startDate} endDate={endDate} onChange={(start, end) => { setStartDate(start); setEndDate(end); }} />
           <Button variant="outline" onClick={clearFilters} className="h-10 rounded-xl border-stone-200 bg-white px-4 text-stone-700">
-            清除筛选条件
+            {t("clearFilters")}
           </Button>
           <Button onClick={() => void loadLogs()} disabled={isLoading} className="h-10 rounded-xl bg-stone-950 px-4 text-white hover:bg-stone-800">
             {isLoading ? <LoaderCircle className="size-4 animate-spin" /> : <Search className="size-4" />}
-            查询
+            {t("query")}
           </Button>
         </div>
       </div>
@@ -163,28 +153,28 @@ function LogsContent() {
         <CardContent className="p-0">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 px-5 py-4">
             <div className="flex flex-wrap items-center gap-3 text-sm text-stone-600">
-              <span>共 {items.length} 条</span>
+              <span>{t("totalLogs", { count: items.length })}</span>
               <label className="flex items-center gap-2">
                 <Checkbox checked={currentPageSelected} onCheckedChange={(checked) => toggleIds(currentRows.map((item) => item.id), Boolean(checked))} />
-                本页全选
+                {t("selectAllPage")}
               </label>
               <label className="flex items-center gap-2">
                 <Checkbox checked={allSelected} onCheckedChange={(checked) => toggleIds(items.map((item) => item.id), Boolean(checked))} />
-                全选结果
+                {t("selectAllResults")}
               </label>
-              {selectedIds.length > 0 ? <span>已选 {selectedIds.length} 条</span> : null}
+              {selectedIds.length > 0 ? <span>{t("selectedCount", { count: selectedIds.length })}</span> : null}
             </div>
             <div className="flex items-center gap-2">
               <Button variant="ghost" className="h-8 rounded-lg px-3 text-stone-500" onClick={() => void loadLogs()} disabled={isLoading}>
                 <RefreshCw className={`size-4 ${isLoading ? "animate-spin" : ""}`} />
-                刷新
+                {t("refresh")}
               </Button>
               <button type="button" className="text-sm text-stone-500 hover:text-stone-900 disabled:text-stone-300" onClick={() => setSelectedIds([])} disabled={selectedIds.length === 0 || isDeleting}>
-                取消选择
+                {t("cancel")}选择
               </button>
               <Button variant="outline" className="h-8 rounded-lg border-rose-200 bg-white px-3 text-rose-600 hover:bg-rose-50" onClick={() => setDeletingItems(items.filter((item) => selectedSet.has(item.id)))} disabled={selectedIds.length === 0 || isDeleting}>
                 <Trash2 className="size-4" />
-                删除所选
+                {t("deleteSelected")}
               </Button>
             </div>
           </div>
@@ -193,14 +183,14 @@ function LogsContent() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-12"></TableHead>
-                  <TableHead>时间</TableHead>
-                  <TableHead>类型</TableHead>
-                  {isCallLog ? <TableHead>令牌名称</TableHead> : null}
-                  {isCallLog ? <TableHead>调用耗时</TableHead> : null}
-                  {isCallLog ? <TableHead>状态</TableHead> : null}
-                  {isCallLog ? <TableHead className="w-36">图片</TableHead> : null}
-                  <TableHead>简述</TableHead>
-                  <TableHead className="w-40">操作</TableHead>
+                  <TableHead>{t("time")}</TableHead>
+                  <TableHead>{t("type")}</TableHead>
+                  {isCallLog ? <TableHead>{t("tokenName")}</TableHead> : null}
+                  {isCallLog ? <TableHead>{t("duration")}</TableHead> : null}
+                  {isCallLog ? <TableHead>{t("status")}</TableHead> : null}
+                  {isCallLog ? <TableHead className="w-36">{t("image")}</TableHead> : null}
+                  <TableHead>{t("summary")}</TableHead>
+                  <TableHead className="w-40">{t("actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -212,13 +202,13 @@ function LogsContent() {
                         <Checkbox checked={selectedSet.has(item.id)} onCheckedChange={(checked) => toggleIds([item.id], Boolean(checked))} />
                       </TableCell>
                       <TableCell className="whitespace-nowrap">{item.time}</TableCell>
-                      <TableCell><Badge variant="secondary" className="rounded-md">{typeLabels[item.type] || item.type}</Badge></TableCell>
+                      <TableCell><Badge variant="secondary" className="rounded-md">{item.type === LogType.Call ? t("callLogs") : item.type === LogType.Account ? t("accountLogs") : item.type}</Badge></TableCell>
                       {isCallLog ? <TableCell>{getDetailText(item, "key_name")}</TableCell> : null}
                       {isCallLog ? <TableCell>{formatDuration(item)}</TableCell> : null}
                       {isCallLog ? (
                         <TableCell>
                           <Badge variant={item.detail?.status === "failed" ? "danger" : "success"} className="rounded-md">
-                            {getStatus(item)}
+                            {item.detail?.status === "success" ? t("success") : item.detail?.status === "failed" ? t("failed") : "-"}
                           </Badge>
                         </TableCell>
                       ) : null}
@@ -232,7 +222,7 @@ function LogsContent() {
                                   type="button"
                                   className="relative size-9 overflow-hidden rounded-lg border border-stone-200 bg-stone-100"
                                   onClick={() => openLogImage(item, imageIndex)}
-                                  title="预览图片"
+                                  title={t("image")}
                                 >
                                   <ImageThumbnail src={url} thumbnailSrc={getImageThumbnailUrl(url)} className="h-full w-full" />
                                 </button>
@@ -251,10 +241,10 @@ function LogsContent() {
                       <TableCell>
                         <div className="flex items-center gap-1">
                           <Button variant="ghost" className="h-8 rounded-lg px-3 text-stone-600" onClick={() => openDetail(item)}>
-                            查看详情
+                            {t("viewDetail")}
                           </Button>
                           <Button variant="ghost" className="h-8 rounded-lg px-3 text-rose-600 hover:bg-rose-50 hover:text-rose-700" onClick={() => setDeletingItems([item])}>
-                            删除
+                            {t("delete")}
                           </Button>
                         </div>
                       </TableCell>
@@ -265,7 +255,7 @@ function LogsContent() {
             </Table>
           </div>
           <div className="flex items-center justify-end gap-2 border-t border-stone-100 px-4 py-3 text-sm text-stone-500">
-            <span>第 {safePage} / {pageCount} 页，共 {items.length} 条</span>
+            <span>{t("pageInfo", { current: safePage, total: pageCount, count: items.length })}</span>
             <Button variant="outline" size="icon" className="size-9 rounded-lg border-stone-200 bg-white" disabled={safePage <= 1} onClick={() => setPage((value) => Math.max(1, value - 1))}>
               <ChevronLeft className="size-4" />
             </Button>
@@ -273,13 +263,13 @@ function LogsContent() {
               <ChevronRight className="size-4" />
             </Button>
           </div>
-          {!isLoading && items.length === 0 ? <div className="px-6 py-14 text-center text-sm text-stone-500">没有找到日志</div> : null}
+          {!isLoading && items.length === 0 ? <div className="px-6 py-14 text-center text-sm text-stone-500">{t("noLogs")}</div> : null}
         </CardContent>
       </Card>
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
         <DialogContent className="flex h-[min(88vh,860px)] w-[min(92vw,920px)] flex-col overflow-hidden rounded-2xl p-0">
           <DialogHeader className="shrink-0 border-b border-stone-100 px-6 py-5">
-            <DialogTitle>日志详情</DialogTitle>
+            <DialogTitle>{t("logDetail")}</DialogTitle>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-5">
             <div className="space-y-4">
@@ -327,18 +317,18 @@ function LogsContent() {
       <Dialog open={deletingItems.length > 0} onOpenChange={(open) => (!open ? setDeletingItems([]) : null)}>
         <DialogContent showCloseButton={false} className="rounded-2xl p-6">
           <DialogHeader className="gap-2">
-            <DialogTitle>{deletingItems.length === 1 ? "删除日志" : "删除所选日志"}</DialogTitle>
+            <DialogTitle>{deletingItems.length === 1 ? t("deleteLogs") : t("deleteSelectedLogs")}</DialogTitle>
             <DialogDescription className="text-sm leading-6">
-              确认删除 {deletingItems.length} 条日志吗？删除后无法恢复。
+              {t("confirmDeleteLogs", { count: deletingItems.length })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" className="rounded-xl" onClick={() => setDeletingItems([])} disabled={isDeleting}>
-              取消
+              {t("cancel")}
             </Button>
             <Button className="rounded-xl bg-rose-600 text-white hover:bg-rose-700" onClick={() => void confirmDelete()} disabled={isDeleting || deletingItems.length === 0}>
               {isDeleting ? <LoaderCircle className="size-4 animate-spin" /> : null}
-              确认删除
+              {t("confirmDelete")}
             </Button>
           </DialogFooter>
         </DialogContent>

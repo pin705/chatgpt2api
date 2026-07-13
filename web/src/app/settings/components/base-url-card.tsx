@@ -1,6 +1,7 @@
 "use client";
 
 import { Globe, LoaderCircle, Save } from "lucide-react";
+import { useTranslations } from 'next-intl';
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { useSettingsStore } from "../store";
 
 export function BaseUrlCard() {
+  const t = useTranslations('settingsBaseUrl');
   const config = useSettingsStore((state) => state.config);
   const isLoadingConfig = useSettingsStore((state) => state.isLoadingConfig);
   const isSavingConfig = useSettingsStore((state) => state.isSavingConfig);
@@ -27,7 +29,7 @@ export function BaseUrlCard() {
               <Globe className="size-5 text-stone-600" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold tracking-tight">基础地址</h2>
+              <h2 className="text-lg font-semibold tracking-tight">{t('title')}</h2>
               <p className="text-sm text-stone-500">设置 `CHATGPT2API_BASE_URL` 的本地配置值，保存后立即生效。</p>
             </div>
           </div>
@@ -43,7 +45,7 @@ export function BaseUrlCard() {
         ) : (
           <>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-stone-700">Base URL</label>
+              <label className="text-sm font-medium text-stone-700">{t('baseUrl')}</label>
               <Input
                 value={baseUrl}
                 onChange={(event) => setBaseUrl(event.target.value)}
@@ -59,8 +61,8 @@ export function BaseUrlCard() {
                 onClick={() => void saveConfig()}
                 disabled={isSavingConfig}
               >
-                {isSavingConfig ? <LoaderCircle className="size-4 animate-spin" /> : <Save className="size-4" />}
-                保存配置
+            {isSavingConfig ? <LoaderCircle className="size-4 animate-spin" /> : <Save className="size-4" />}
+            {t('save')}
               </Button>
             </div>
           </>

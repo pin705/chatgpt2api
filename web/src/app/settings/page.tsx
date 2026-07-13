@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { LoaderCircle } from "lucide-react";
+import { useTranslations } from 'next-intl';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuthGuard } from "@/lib/use-auth-guard";
@@ -19,16 +20,16 @@ import { ThirdPartyAppsCard } from "./components/third-party-apps-card";
 import { UserKeysCard } from "./components/user-keys-card";
 import { useSettingsStore } from "./store";
 
-const settingsTabs = [
-  { value: "basic", title: "基础配置" },
-  { value: "backup", title: "备份" },
-  { value: "keys", title: "用户密钥" },
-  { value: "api-docs", title: "接口接入" },
-  { value: "canvas", title: "画布入口" },
-  { value: "proxy", title: "FlareSolverr" },
-  { value: "cpa", title: "CPA" },
-  { value: "sub2api", title: "Sub2API" },
-];
+const settingsTabKeys: Record<string, string> = {
+  basic: "basicConfig",
+  backup: "backup",
+  keys: "userKeys",
+  "api-docs": "apiDocs",
+  canvas: "canvasEntry",
+  proxy: "flareSolverr",
+  cpa: "cpa",
+  sub2api: "sub2api",
+};
 
 function SettingsDataController() {
   const didLoadRef = useRef(false);
@@ -75,6 +76,7 @@ function SettingsDataController() {
 }
 
 function SettingsPageContent() {
+  const t = useTranslations('settings');
   return (
     <>
       <SettingsDataController />
@@ -82,9 +84,9 @@ function SettingsPageContent() {
       <Tabs defaultValue="basic" className="space-y-4">
         <div className="sticky top-3 z-20 overflow-x-auto rounded-xl border border-white/80 bg-white/90 px-3 py-2 shadow-sm backdrop-blur">
           <TabsList variant="line" className="min-w-max justify-start">
-            {settingsTabs.map((tab) => (
-              <TabsTrigger key={tab.value} value={tab.value} className="px-4">
-                {tab.title}
+            {Object.entries(settingsTabKeys).map(([value, key]) => (
+              <TabsTrigger key={value} value={value} className="px-4">
+                {t(key)}
               </TabsTrigger>
             ))}
           </TabsList>

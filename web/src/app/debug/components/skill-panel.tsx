@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Copy, Download } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import { fetchSettingsConfig } from "@/lib/api";
 import { getStoredAuthSession } from "@/store/auth";
 
 export function SkillPanel() {
+  const t = useTranslations("common");
   const [browserBaseUrl, setBrowserBaseUrl] = useState("");
   const [configuredBaseUrl, setConfiguredBaseUrl] = useState("");
   const [authKey, setAuthKey] = useState("");
@@ -122,7 +124,7 @@ ${skillEn}
 
   const copyText = async (text: string) => {
     await navigator.clipboard.writeText(text);
-    toast.success("已复制");
+    toast.success(t("copied"));
   };
 
   const downloadSkill = (text: string) => {
@@ -151,11 +153,11 @@ ${skillEn}
             <div className="flex gap-2">
               <Button size="sm" variant="outline" className="cursor-pointer" onClick={() => downloadSkill(item.skill)}>
                 <Download />
-                下载
+                {t("download")}
               </Button>
               <Button size="sm" className="cursor-pointer" onClick={() => void copyText(item.prompt)}>
                 <Copy />
-                复制
+                {t("copy")}
               </Button>
             </div>
           </div>
